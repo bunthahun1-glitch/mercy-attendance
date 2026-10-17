@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: mercy-attendance
+    env: python
+    region: singapore
+    plan: free
+    buildCommand: bash ./build.sh
+    startCommand: gunicorn --bind 0.0.0.0:$PORT mobile_server:app --timeout 120 --workers 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
