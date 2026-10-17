@@ -2562,74 +2562,169 @@
         </div>
 
         <!-- ================= PAGE 6: STAFF REQUESTS ================= -->
+        <!-- ================= PAGE 6: ANNOUNCEMENTS & STAFF REQUESTS ================= -->
         <div class="page-pane" id="pane-requests">
             <div class="panel-box">
-                <div class="panel-toolbar">
+                <div class="panel-toolbar" style="flex-wrap: wrap; gap: 12px;">
                     <div>
-                        <h3>🔔 សេចក្តីជូនដំណឹងផ្សេងៗ (Announcements & Notices)</h3>
-                        <p style="font-size:11.5px; color:#64748B;">សេចក្តីជូនដំណឹង សំណើប្តូរវេនការងារ ស្នើសុំសម្ភារ ឯកសារ និងរបាយការណ៍ផ្សេងៗរបស់បុគ្គលិក</p>
+                        <h3>🔔 សេចក្តីជូនដំណឹង & សំណើផ្សេងៗ (Announcements & Requests)</h3>
+                        <p style="font-size:11.5px; color:#64748B;">បង្កើត និងសរសេរសេចក្តីជូនដំណឹងជូនបុគ្គលិកនៅកន្លែងស្កេន ព្រមទាំងគ្រប់គ្រងសំណើផ្សេងៗ</p>
                     </div>
-                    <div class="toolbar-actions">
-                        <select class="select-filter" id="requestFilter" onchange="filterRequestsTable()">
+                    <div class="toolbar-actions" style="display:flex; align-items:center; gap:8px;">
+                        <button class="btn-action-primary" onclick="openCreateAnnouncementModal()" style="display:inline-flex; align-items:center; gap:6px; background:#5648A6; color:white; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px; box-shadow:0 3px 10px rgba(86, 72, 166, 0.25);">
+                            <span style="font-size:15px;">✍️</span> + បង្កើតសេចក្តីជូនដំណឹង (New Notice)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Sub-Tabs Navigation: Announcements vs Staff Requests -->
+                <div style="display: flex; gap: 8px; border-bottom: 2px solid #E2E8F0; margin-bottom: 16px; padding-bottom: 2px;">
+                    <button type="button" id="tabBtnAnnouncements" class="request-subtab active" onclick="switchRequestSubTab('announcements')" style="background: none; border: none; padding: 10px 18px; font-size: 13.5px; font-weight: 700; color: #5648A6; border-bottom: 3px solid #5648A6; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span>📢</span> សេចក្តីជូនដំណឹងពីថ្នាក់គ្រប់គ្រង
+                        <span id="annBadgeCount" style="background: #5648A6; color: white; border-radius: 10px; padding: 1px 7px; font-size: 11px;">{{ announcements|length if announcements else 0 }}</span>
+                    </button>
+                    <button type="button" id="tabBtnStaffRequests" class="request-subtab" onclick="switchRequestSubTab('staff_requests')" style="background: none; border: none; padding: 10px 18px; font-size: 13.5px; font-weight: 600; color: #64748B; border-bottom: 3px solid transparent; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span>📋</span> សំណើពីបុគ្គលិក (Staff Requests)
+                        <span style="background: #E2E8F0; color: #475569; border-radius: 10px; padding: 1px 7px; font-size: 11px;">{{ staff_requests|length if staff_requests else 0 }}</span>
+                    </button>
+                </div>
+
+                <!-- SUB-SECTION 1: CLINIC ANNOUNCEMENTS -->
+                <div id="subSectionAnnouncements">
+                    <div class="table-responsive">
+                        <table class="data-table" id="announcementsTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 60px; text-align: center;">ល.រ</th>
+                                    <th style="width: 140px;">កម្រិតអាទិភាព</th>
+                                    <th>ចំណងជើង & ខ្លឹមសារសេចក្តីជូនដំណឹង</th>
+                                    <th style="width: 150px;">ផ្ញើជូន (Target)</th>
+                                    <th style="width: 165px;">កាលបរិច្ឆេទ</th>
+                                    <th style="width: 125px; text-align: center;">ស្ថានភាព</th>
+                                    <th style="text-align: center; width: 130px; min-width: 130px; white-space: nowrap;">សកម្មភាព</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if announcements %}
+                                    {% for ann in announcements %}
+                                    <tr onclick='viewAnnouncementDetail({{ ann|tojson|safe }})' style="cursor: pointer;">
+                                        <td style="text-align: center; font-weight: 700; color: #64748B;">#{{ ann.id }}</td>
+                                        <td>
+                                            {% if ann.priority == 'Urgent' %}
+                                            <span class="status-pill" style="background:#FEE2E2; color:#DC2626; border:1px solid #FECACA; font-weight:700;">🚨 បន្ទាន់ (Urgent)</span>
+                                            {% elif ann.priority == 'Important' %}
+                                            <span class="status-pill" style="background:#FEF3C7; color:#D97706; border:1px solid #FDE68A; font-weight:700;">⭐ សំខាន់ (Important)</span>
+                                            {% else %}
+                                            <span class="status-pill" style="background:#DBEAFE; color:#2563EB; border:1px solid #BFDBFE; font-weight:700;">ℹ️ ដំណឹងទូទៅ</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div style="font-weight: 800; color: #1E293B; font-size: 13px; margin-bottom: 2px;">{{ ann.title }}</div>
+                                            <div style="font-size: 11.5px; color: #64748B; max-width: 480px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                {{ ann.content }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span style="font-size: 12px; font-weight: 600; color: #475569;">👥 {{ ann.target or 'បុគ្គលិកទាំងអស់' }}</span>
+                                        </td>
+                                        <td style="font-size: 11.5px; color: #64748B; white-space: nowrap;">
+                                            📅 {{ ann.created_at }}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            {% if ann.is_active %}
+                                            <span class="status-pill status-present" style="font-size: 11px;">● កំពុងផ្សាយ (Active)</span>
+                                            {% else %}
+                                            <span class="status-pill" style="background:#F1F5F9; color:#94A3B8; font-size: 11px;">● បានបិទ (Inactive)</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center; white-space: nowrap;">
+                                            <div style="display:inline-flex; align-items:center; justify-content:center; gap:6px;">
+                                                <button type="button" class="btn-row-view" onclick='event.stopPropagation(); viewAnnouncementDetail({{ ann|tojson|safe }})' title="មើលលម្អិត">👁️</button>
+                                                <button type="button" class="btn-row-edit" onclick='event.stopPropagation(); editAnnouncement({{ ann|tojson|safe }})' title="កែប្រែ">✏️</button>
+                                                <button type="button" class="btn-row-del" onclick="event.stopPropagation(); deleteAnnouncement({{ ann.id }})" title="លុប">🗑️</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 45px 20px;">
+                                            <div style="font-size: 42px; margin-bottom: 10px;">📢</div>
+                                            <div style="font-weight: 700; font-size: 15px; color: #1E293B; margin-bottom: 4px;">មិនទាន់មានសេចក្តីជូនដំណឹងនៅឡើយទេ</div>
+                                            <div style="font-size: 12px; color: #64748B; margin-bottom: 14px;">លោកអ្នកអាចសរសេរសេចក្តីជូនដំណឹងថ្មី ដើម្បីបង្ហាញជូនបុគ្គលិកនៅកន្លែងស្កេនទូរស័ព្ទដៃភ្លាមៗ។</div>
+                                            <button type="button" class="btn-action-primary" onclick="openCreateAnnouncementModal()" style="display:inline-flex; align-items:center; gap:6px; background:#5648A6; color:white; border:none; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">
+                                                ✍️ + ចុចត្រង់នេះដើម្បីសរសេរសេចក្តីជូនដំណឹង
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- SUB-SECTION 2: STAFF REQUESTS -->
+                <div id="subSectionStaffRequests" style="display: none;">
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+                        <select class="select-filter" id="requestFilter" onchange="filterRequestsTable()" style="padding: 6px 12px; border-radius: 6px; border: 1.5px solid #CBD5E1; font-family: inherit; font-size: 12px;">
                             <option value="All">គ្រប់សំណើ (All)</option>
                             <option value="Pending">រង់ចាំការអនុម័ត (Pending)</option>
                             <option value="Approved">បានអនុម័ត (Approved)</option>
                             <option value="Rejected">បានបដិសេធ (Rejected)</option>
                         </select>
                     </div>
+                    <div class="table-responsive">
+                        <table class="data-table" id="requestsTable">
+                            <thead>
+                                <tr>
+                                    <th>Req No</th>
+                                    <th>បុគ្គលិក (Staff)</th>
+                                    <th>ប្រភេទ / ចំណងជើង</th>
+                                    <th>កាលបរិច្ឆេទ</th>
+                                    <th>ស្ថានភាព</th>
+                                    <th style="text-align: center; width: 110px; min-width: 110px; white-space: nowrap;">សកម្មភាព</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if staff_requests %}
+                                    {% for req in staff_requests %}
+                                    <tr onclick='selectRequestRow({{ req|tojson|safe }})' style="cursor:pointer;">
+                                        <td style="font-weight:700; color:var(--primary);">REQ-{{ "%03d"|format(req.id) }}</td>
+                                        <td><b>{{ req.khmer_name or req.emp_name or 'បុគ្គលិក' }}</b></td>
+                                        <td>
+                                            <div style="font-weight:700;">{{ req.subject }}</div>
+                                            <div style="font-size:10px; color:#64748B;">{{ req.category or 'General' }}</div>
+                                        </td>
+                                        <td>{{ req.date_submitted }}</td>
+                                        <td class="req-status-col">
+                                            {% if req.status == 'Approved' %}
+                                            <span class="status-pill status-present">● Approved</span>
+                                            {% elif req.status == 'Rejected' %}
+                                            <span class="status-pill status-late">● Rejected</span>
+                                            {% else %}
+                                            <span class="status-pill status-early">● Pending</span>
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center; white-space: nowrap; width: 110px;">
+                                            <div style="display:inline-flex; align-items:center; justify-content:center; gap:4px; white-space:nowrap;">
+                                                <button class="btn-row-view" onclick='event.stopPropagation(); selectRequestRow({{ req|tojson|safe }})'>👁️ Detail</button>
+                                                <button class="btn-row-del" onclick="event.stopPropagation(); deleteStaffRequest({{ req.id }})">🗑️</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="6" style="text-align:center; padding:30px; color:#64748B;">
+                                            ពុំមានសំណើពីបុគ្គលិកនៅឡើយទេ
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
-                <!-- Table of Requests takes full width -->
-                <div class="table-responsive">
-                    <table class="data-table" id="requestsTable">
-                        <thead>
-                            <tr>
-                                <th>Req No</th>
-                                <th>បុគ្គលិក (Staff)</th>
-                                <th>ប្រភេទ / ចំណងជើង</th>
-                                <th>កាលបរិច្ឆេទ</th>
-                                <th>ស្ថានភាព</th>
-                                <th style="text-align: center; width: 110px; min-width: 110px; white-space: nowrap;">សកម្មភាព</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if staff_requests %}
-                                {% for req in staff_requests %}
-                                <tr onclick='selectRequestRow({{ req|tojson|safe }})' style="cursor:pointer;">
-                                    <td style="font-weight:700; color:var(--primary);">REQ-{{ "%03d"|format(req.id) }}</td>
-                                    <td><b>{{ req.khmer_name or req.emp_name or 'បុគ្គលិក' }}</b></td>
-                                    <td>
-                                        <div style="font-weight:700;">{{ req.subject }}</div>
-                                        <div style="font-size:10px; color:#64748B;">{{ req.category or 'General' }}</div>
-                                    </td>
-                                    <td>{{ req.date_submitted }}</td>
-                                    <td class="req-status-col">
-                                        {% if req.status == 'Approved' %}
-                                        <span class="status-pill status-present">● Approved</span>
-                                        {% elif req.status == 'Rejected' %}
-                                        <span class="status-pill status-late">● Rejected</span>
-                                        {% else %}
-                                        <span class="status-pill status-early">● Pending</span>
-                                        {% endif %}
-                                    </td>
-                                    <td style="text-align: center; white-space: nowrap; width: 110px;">
-                                        <div style="display:inline-flex; align-items:center; justify-content:center; gap:4px; white-space:nowrap;">
-                                            <button class="btn-row-view" onclick='event.stopPropagation(); selectRequestRow({{ req|tojson|safe }})'>👁️ Detail</button>
-                                            <button class="btn-row-del" onclick="event.stopPropagation(); deleteStaffRequest({{ req.id }})">🗑️</button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="6" style="text-align:center; padding:30px; color:#64748B;">
-                                        ពុំមានដំណឹងផ្សេងៗ
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
 
@@ -3568,6 +3663,85 @@
         </div>
         <div class="modal-footer" id="reqDetailModalFooter">
             <button type="button" class="btn-action-secondary" onclick="closeModal('reqDetailModal')">បិទ</button>
+        </div>
+    </div>
+</div>
+
+<!-- 10.6 Modal: Create / Edit Announcement -->
+<div class="modal-overlay" id="announcementModal" onclick="closeModal('announcementModal', event)">
+    <div class="modal-box" style="max-width:560px;" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <h3 id="annModalTitle">📢 បង្កើតសេចក្តីជូនដំណឹងថ្មី (New Announcement)</h3>
+            <button class="modal-close" onclick="closeModal('announcementModal')">&times;</button>
+        </div>
+        <form id="announcementForm" onsubmit="submitAnnouncement(event)">
+            <input type="hidden" id="ann_id">
+            <div class="modal-body" style="display:flex; flex-direction:column; gap:14px; padding:18px 24px;">
+                <div class="form-group">
+                    <label style="font-size:12px; font-weight:700; color:#475569;">ចំណងជើងសេចក្តីជូនដំណឹង (Title / Subject) *:</label>
+                    <input type="text" id="ann_title" required placeholder="ឧ. ជូនដំណឹងអំពីការប្រជុំបុគ្គលិក ឬការប្តូរវេនការងារ..." style="width:100%; height:38px; border:1.5px solid #CBD5E1; border-radius:6px; padding:0 12px; font-family:inherit; font-size:13px; font-weight:600;">
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div class="form-group">
+                        <label style="font-size:12px; font-weight:700; color:#475569;">កម្រិតអាទិភាព (Priority):</label>
+                        <select id="ann_priority" style="width:100%; height:38px; border:1.5px solid #CBD5E1; border-radius:6px; padding:0 10px; font-family:inherit; font-size:12.5px; font-weight:600;">
+                            <option value="Normal">ℹ️ ធម្មតា (Normal)</option>
+                            <option value="Important">⭐ សំខាន់ (Important)</option>
+                            <option value="Urgent">🚨 បន្ទាន់ (Urgent)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label style="font-size:12px; font-weight:700; color:#475569;">ផ្ញើជូន (Target Staff):</label>
+                        <select id="ann_target" style="width:100%; height:38px; border:1.5px solid #CBD5E1; border-radius:6px; padding:0 10px; font-family:inherit; font-size:12.5px; font-weight:600;">
+                            <option value="All Staff">👥 បុគ្គលិកទាំងអស់ (All Staff)</option>
+                            <option value="ផ្នែកទន្តបណ្ឌិត">🩺 ផ្នែកទន្តបណ្ឌិត (Dentists)</option>
+                            <option value="ផ្នែកគិលានុបដ្ឋាយិកា">👩‍⚕️ ផ្នែកគិលានុបដ្ឋាយិកា (Nurses)</option>
+                            <option value="ផ្នែករដ្ឋបាល & ទទួលភ្ញៀវ">💼 ផ្នែករដ្ឋបាល & ទទួលភ្ញៀវ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-size:12px; font-weight:700; color:#475569;">ខ្លឹមសារសេចក្តីជូនដំណឹងលម្អិត (Content / Details) *:</label>
+                    <textarea id="ann_content" rows="5" required placeholder="សូមសរសេរខ្លឹមសារសេចក្តីជូនដំណឹងនៅទីនេះ..." style="width:100%; border:1.5px solid #CBD5E1; border-radius:6px; padding:10px 12px; font-family:inherit; font-size:13px; line-height:1.5; outline:none; resize:vertical;"></textarea>
+                </div>
+
+                <div class="form-group" style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:8px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between;">
+                    <div>
+                        <div style="font-size:12.5px; font-weight:700; color:#1E293B;">🔔 ផ្សាយជូនបុគ្គលិកភ្លាមៗ (Active on Mobile Scan)</div>
+                        <div style="font-size:11px; color:#64748B;">បុគ្គលិកនឹងឃើញកណ្តឹងដំណឹង និងសារនេះនៅពេលស្កេនវត្តមាន</div>
+                    </div>
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:12.5px; font-weight:700; color:#4338CA;">
+                        <input type="checkbox" id="ann_is_active" checked style="width:18px; height:18px; accent-color:#5648A6;">
+                        <span>ផ្សាយភ្លាមៗ</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding:14px 24px; background:#F8FAFC; border-top:1px solid #E2E8F0; display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" class="btn-action-secondary" onclick="closeModal('announcementModal')">បោះបង់</button>
+                <button type="submit" class="btn-action-primary" id="btnSaveAnn" style="background:#5648A6; padding:8px 20px;">💾 រក្សាទុក & ផ្សាយ (Save & Publish)</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 10.7 Modal: View Announcement Detail -->
+<div class="modal-overlay" id="viewAnnouncementModal" onclick="closeModal('viewAnnouncementModal', event)">
+    <div class="modal-box" style="max-width:540px;" onclick="event.stopPropagation()">
+        <div class="modal-header">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:22px;">📢</span>
+                <div>
+                    <h3 style="margin:0; font-size:15px; font-weight:800; color:#1E293B;">សេចក្តីជូនដំណឹង</h3>
+                    <p style="margin:0; font-size:11px; color:#64748B;">Mercy Dental Care Announcement</p>
+                </div>
+            </div>
+            <button class="modal-close" onclick="closeModal('viewAnnouncementModal')">&times;</button>
+        </div>
+        <div class="modal-body" id="viewAnnBody" style="padding:18px 22px;">
+        </div>
+        <div class="modal-footer" id="viewAnnFooter" style="padding:12px 20px; background:#F8FAFC; border-top:1px solid #E2E8F0; display:flex; justify-content:space-between; align-items:center;">
         </div>
     </div>
 </div>
@@ -5529,6 +5703,149 @@
             const text = r.querySelector('.req-status-col') ? r.querySelector('.req-status-col').innerText.toLowerCase() : '';
             r.style.display = (stat === 'all' || text.includes(stat)) ? '' : 'none';
         });
+    }
+
+    // --- ANNOUNCEMENTS / NOTICES FUNCTIONS ---
+    function switchRequestSubTab(tab) {
+        const btnAnn = document.getElementById('tabBtnAnnouncements');
+        const btnReq = document.getElementById('tabBtnStaffRequests');
+        const secAnn = document.getElementById('subSectionAnnouncements');
+        const secReq = document.getElementById('subSectionStaffRequests');
+        if (tab === 'announcements') {
+            btnAnn.style.color = '#5648A6';
+            btnAnn.style.borderBottomColor = '#5648A6';
+            btnReq.style.color = '#64748B';
+            btnReq.style.borderBottomColor = 'transparent';
+            secAnn.style.display = 'block';
+            secReq.style.display = 'none';
+        } else {
+            btnReq.style.color = '#5648A6';
+            btnReq.style.borderBottomColor = '#5648A6';
+            btnAnn.style.color = '#64748B';
+            btnAnn.style.borderBottomColor = 'transparent';
+            secAnn.style.display = 'none';
+            secReq.style.display = 'block';
+        }
+    }
+
+    function openCreateAnnouncementModal() {
+        document.getElementById('annModalTitle').innerText = '📢 បង្កើតសេចក្តីជូនដំណឹងថ្មី (New Notice)';
+        document.getElementById('ann_id').value = '';
+        document.getElementById('ann_title').value = '';
+        document.getElementById('ann_priority').value = 'Normal';
+        document.getElementById('ann_target').value = 'All Staff';
+        document.getElementById('ann_content').value = '';
+        document.getElementById('ann_is_active').checked = true;
+        openModal('announcementModal');
+    }
+
+    function editAnnouncement(ann) {
+        document.getElementById('annModalTitle').innerText = '✏️ កែប្រែសេចក្តីជូនដំណឹង (Edit Notice)';
+        document.getElementById('ann_id').value = ann.id || '';
+        document.getElementById('ann_title').value = ann.title || '';
+        document.getElementById('ann_priority').value = ann.priority || 'Normal';
+        document.getElementById('ann_target').value = ann.target || 'All Staff';
+        document.getElementById('ann_content').value = ann.content || '';
+        document.getElementById('ann_is_active').checked = ann.is_active == 1;
+        openModal('announcementModal');
+    }
+
+    function viewAnnouncementDetail(ann) {
+        const body = document.getElementById('viewAnnBody');
+        const footer = document.getElementById('viewAnnFooter');
+        if (!body) return;
+        const pBadge = ann.priority === 'Urgent'
+            ? '<span class="status-pill" style="background:#FEE2E2; color:#DC2626; border:1px solid #FECACA; font-weight:700;">🚨 បន្ទាន់ (Urgent)</span>'
+            : (ann.priority === 'Important'
+                ? '<span class="status-pill" style="background:#FEF3C7; color:#D97706; border:1px solid #FDE68A; font-weight:700;">⭐ សំខាន់ (Important)</span>'
+                : '<span class="status-pill" style="background:#DBEAFE; color:#2563EB; border:1px solid #BFDBFE; font-weight:700;">ℹ️ ដំណឹងទូទៅ (Normal)</span>');
+
+        body.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                ${pBadge}
+                <span style="font-size:11.5px; color:#64748B;">📅 ${ann.created_at || ''}</span>
+            </div>
+            <h3 style="font-size:16px; font-weight:800; color:#1E293B; margin:0 0 10px;">${escapeHtml(ann.title || '')}</h3>
+            <div style="font-size:12px; color:#64748B; margin-bottom:12px;">
+                👥 ផ្ញើជូន៖ <b>${escapeHtml(ann.target || 'បុគ្គលិកទាំងអស់')}</b> | ស្ថានភាព៖ <b>${ann.is_active ? '🟢 កំពុងផ្សាយ (Active)' : '⚪ បានបិទ (Inactive)'}</b>
+            </div>
+            <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:10px; padding:14px; font-size:13.5px; color:#334155; line-height:1.6; white-space:pre-wrap; max-height:350px; overflow-y:auto;">${escapeHtml(ann.content || '')}</div>
+        `;
+
+        if (footer) {
+            const annJsonStr = JSON.stringify(ann).replace(/"/g, '&quot;');
+            footer.innerHTML = `
+                <div style="display:flex; gap:8px;">
+                    <button type="button" class="btn-action-primary" style="background:#4F46E5; padding:6px 14px;" onclick='closeModal("viewAnnouncementModal"); editAnnouncement(${annJsonStr})'>✏️ កែប្រែ</button>
+                    <button type="button" class="btn-row-del" style="padding:6px 12px; height:auto;" onclick="deleteAnnouncement(${ann.id})">🗑️ លុប</button>
+                </div>
+                <button type="button" class="btn-action-secondary" onclick="closeModal('viewAnnouncementModal')">បិទ</button>
+            `;
+        }
+        openModal('viewAnnouncementModal');
+    }
+
+    async function submitAnnouncement(e) {
+        e.preventDefault();
+        const id = document.getElementById('ann_id').value;
+        const title = document.getElementById('ann_title').value.trim();
+        const priority = document.getElementById('ann_priority').value;
+        const target = document.getElementById('ann_target').value;
+        const content = document.getElementById('ann_content').value.trim();
+        const is_active = document.getElementById('ann_is_active').checked ? 1 : 0;
+
+        if (!title || !content) {
+            alert('សូមបញ្ចូលចំណងជើង និងខ្លឹមសារសេចក្តីជូនដំណឹង!');
+            return;
+        }
+
+        const btn = document.getElementById('btnSaveAnn');
+        if (btn) btn.disabled = true;
+
+        try {
+            const res = await fetch('/admin/api/announcement/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: id,
+                    title: title,
+                    priority: priority,
+                    target: target,
+                    content: content,
+                    is_active: is_active
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                playChime(true);
+                location.reload();
+            } else {
+                alert('បរាជ័យ៖ ' + (data.message || 'សូមព្យាយាមម្តងទៀត'));
+                if (btn) btn.disabled = false;
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    async function deleteAnnouncement(id) {
+        if (!confirm('តើលោកអ្នកពិតជាចង់លុបសេចក្តីជូនដំណឹងនេះមែនទេ?')) return;
+        try {
+            const res = await fetch('/admin/api/announcement/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
+            });
+            const data = await res.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('បរាជ័យ៖ ' + (data.message || 'មិនអាចលុបបានទេ'));
+            }
+        } catch (err) {
+            alert('Error: ' + err.message);
+        }
     }
 
     // --- PAGE 7: KIOSK PUNCH TERMINAL ---

@@ -128,6 +128,64 @@ MOBILE_HTML = """
             font-size: 11px;
             opacity: 0.9;
         }
+        .header-clock-row {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 6px;
+            position: relative;
+        }
+        .notice-bell-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 13px;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            backdrop-filter: blur(4px);
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+            height: 24px;
+            box-sizing: border-box;
+        }
+        .notice-bell-btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .notice-badge-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 8px;
+            height: 8px;
+            background: #EF4444;
+            border-radius: 50%;
+            border: 1.5px solid #3B2D7B;
+            box-shadow: 0 0 6px #EF4444;
+            animation: bellDotPulse 1.6s infinite ease-in-out;
+        }
+        .notice-badge-count {
+            font-size: 10px;
+            font-weight: 800;
+            background: #EF4444;
+            color: #FFFFFF;
+            padding: 0 5px;
+            border-radius: 9px;
+            line-height: 14px;
+            height: 14px;
+            margin-left: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        @keyframes bellDotPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.35); opacity: 0.75; }
+        }
         .live-clock {
             background: rgba(255, 255, 255, 0.15);
             border-radius: 12px;
@@ -135,8 +193,187 @@ MOBILE_HTML = """
             font-size: 11px;
             font-weight: 600;
             display: inline-block;
-            margin-top: 6px;
             backdrop-filter: blur(4px);
+            height: 24px;
+            box-sizing: border-box;
+            line-height: 18px;
+        }
+        /* Top Announcement Banner Strip */
+        .notice-banner-strip {
+            background: linear-gradient(90deg, #FEF3C7 0%, #FDE68A 100%);
+            border: 1px solid #FCD34D;
+            color: #78350F;
+            padding: 6px 12px;
+            margin: 8px 10px 0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11.5px;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(217, 119, 6, 0.12);
+            transition: transform 0.15s;
+        }
+        .notice-banner-strip:active {
+            transform: scale(0.98);
+        }
+        .notice-strip-icon {
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .notice-strip-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 11px;
+            line-height: 1.2;
+        }
+        .notice-strip-link {
+            font-size: 10.5px;
+            font-weight: 800;
+            color: #92400E;
+            white-space: nowrap;
+            padding-left: 4px;
+        }
+        /* Mobile Notice Modal */
+        .notice-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+        .notice-modal-overlay.active {
+            display: flex;
+        }
+        .notice-modal-box {
+            background: #FFFFFF;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 380px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+            animation: modalFadeIn 0.2s ease-out;
+        }
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .notice-modal-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid #E2E8F0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #F8FAFC;
+        }
+        .notice-modal-close {
+            background: none;
+            border: none;
+            font-size: 22px;
+            color: #64748B;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        .notice-modal-body {
+            padding: 14px 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .notice-item-card {
+            border-radius: 10px;
+            border: 1px solid #E2E8F0;
+            padding: 12px;
+            background: #F8FAFC;
+        }
+        .notice-item-card.priority-urgent {
+            border-color: #FCA5A5;
+            background: #FEF2F2;
+        }
+        .notice-item-card.priority-important {
+            border-color: #FDE68A;
+            background: #FFFBEB;
+        }
+        .notice-item-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+        .notice-pill-priority {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+        .notice-pill-priority.priority-urgent {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+        .notice-pill-priority.priority-important {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+        .notice-pill-priority.priority-normal {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+        .notice-item-date {
+            font-size: 10px;
+            color: #64748B;
+        }
+        .notice-item-title {
+            margin: 0 0 6px;
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #1E293B;
+            line-height: 1.35;
+        }
+        .notice-item-content {
+            font-size: 12px;
+            color: #334155;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .notice-item-target {
+            margin-top: 8px;
+            padding-top: 6px;
+            border-top: 1px dashed rgba(0,0,0,0.08);
+            font-size: 10.5px;
+            color: #64748B;
+        }
+        .notice-modal-footer {
+            padding: 10px 16px;
+            background: #F8FAFC;
+            border-top: 1px solid #E2E8F0;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .btn-notice-close {
+            background: #5648A6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
         }
         .content {
             padding: 10px 12px;
@@ -428,8 +665,26 @@ MOBILE_HTML = """
         </div>
         <h1 style="font-size: 16px; font-weight: 700; margin-bottom: 2px;">{{ clinic_name_kh }}</h1>
         <p style="font-size: 11px; opacity: 0.9; margin: 0;">Mercy Dental Care • Mobile Attendance System</p>
-        <div class="live-clock" id="liveClock">⏰ កំពុងទាញម៉ោង...</div>
+        <div class="header-clock-row">
+            <button type="button" class="notice-bell-btn" id="noticeBellBtn" onclick="openNoticeModal()" title="សេចក្តីជូនដំណឹង (Notices)">
+                <span class="bell-icon">🔔</span>
+                {% if active_ann_count > 0 %}
+                <span class="notice-badge-dot"></span>
+                <span class="notice-badge-count">{{ active_ann_count }}</span>
+                {% endif %}
+            </button>
+            <div class="live-clock" id="liveClock">⏰ កំពុងទាញម៉ោង...</div>
+        </div>
     </div>
+
+    {% if active_announcements %}
+    {% set top_notice = active_announcements[0] %}
+    <div class="notice-banner-strip" onclick="openNoticeModal()" title="ចុចដើម្បីអានសេចក្តីជូនដំណឹង">
+        <span class="notice-strip-icon">{% if top_notice.priority == 'Urgent' %}🚨{% elif top_notice.priority == 'Important' %}⭐{% else %}📢{% endif %}</span>
+        <div class="notice-strip-text"><b>{{ top_notice.title }}</b>: {{ top_notice.content }}</div>
+        <span class="notice-strip-link">មើល ›</span>
+    </div>
+    {% endif %}
 
     <div class="content">
         <!-- Top Split Row: Staff Selection (Left) + Wi-Fi & GPS Status (Right) -->
@@ -604,6 +859,48 @@ MOBILE_HTML = """
         </div>
     </div>
 
+    <!-- Announcement & Notice Modal for Staff -->
+    <div class="notice-modal-overlay" id="noticeModal" onclick="closeNoticeModal(event)">
+        <div class="notice-modal-box" onclick="event.stopPropagation()">
+            <div class="notice-modal-header">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:22px;">🔔</span>
+                    <div>
+                        <h3 style="margin:0; font-size:14.5px; font-weight:800; color:#1E293B;">សេចក្តីជូនដំណឹងពីគ្លីនិក</h3>
+                        <p style="margin:0; font-size:10.5px; color:#64748B;">Mercy Dental Care Official Notices</p>
+                    </div>
+                </div>
+                <button type="button" class="notice-modal-close" onclick="closeNoticeModal()">&times;</button>
+            </div>
+            <div class="notice-modal-body">
+                {% if active_announcements %}
+                    {% for ann in active_announcements %}
+                    <div class="notice-item-card priority-{{ ann.priority|lower }}">
+                        <div class="notice-item-top">
+                            <span class="notice-pill-priority priority-{{ ann.priority|lower }}">
+                                {% if ann.priority == 'Urgent' %}🚨 បន្ទាន់ (Urgent){% elif ann.priority == 'Important' %}⭐ សំខាន់ (Important){% else %}ℹ️ ដំណឹងទូទៅ{% endif %}
+                            </span>
+                            <span class="notice-item-date">📅 {{ ann.created_at }}</span>
+                        </div>
+                        <h4 class="notice-item-title">{{ ann.title }}</h4>
+                        <div class="notice-item-content">{{ ann.content }}</div>
+                        <div class="notice-item-target">👥 ផ្ញើជូន៖ <strong>{{ ann.target or 'បុគ្គលិកទាំងអស់' }}</strong></div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align:center; padding:35px 15px; color:#64748B;">
+                        <div style="font-size:38px; margin-bottom:10px;">🔕</div>
+                        <div style="font-weight:700; font-size:13.5px; color:#334155;">ពុំមានសេចក្តីជូនដំណឹងថ្មីនៅឡើយទេ</div>
+                        <div style="font-size:11px; margin-top:4px; color:#94A3B8;">នៅពេលមានសេចក្តីជូនដំណឹងថ្មី វានឹងបង្ហាញជូននៅត្រង់នេះភ្លាមៗ។</div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="notice-modal-footer">
+                <button type="button" class="btn-notice-close" onclick="closeNoticeModal()">យល់ព្រម / ខ្ញុំបានអានរួច (Close)</button>
+            </div>
+        </div>
+    </div>
+
     <div class="footer">
         <div>© 2026 Mercy Dental Care • Anti-Buddy Punching Geofenced System</div>
         <div style="margin-top: 6px;">
@@ -621,6 +918,17 @@ MOBILE_HTML = """
     }
     setInterval(updateClock, 1000);
     updateClock();
+
+    // Notice Modal Handlers
+    function openNoticeModal() {
+        const m = document.getElementById('noticeModal');
+        if (m) m.classList.add('active');
+    }
+    function closeNoticeModal(e) {
+        if (e && e.target && e.target.id !== 'noticeModal' && !e.target.classList.contains('notice-modal-close') && !e.target.classList.contains('btn-notice-close')) return;
+        const m = document.getElementById('noticeModal');
+        if (m) m.classList.remove('active');
+    }
 
     // Security Settings from Backend
     const config = {{ config_json|safe }};
@@ -1223,6 +1531,10 @@ def index():
         except Exception:
             pass
 
+    # Fetch Active Clinic Announcements
+    active_announcements = database.get_active_announcements()
+    active_ann_count = len(active_announcements)
+
     return render_template_string(
         MOBILE_HTML,
         employees=all_employees,
@@ -1234,7 +1546,9 @@ def index():
         client_ip=client_ip,
         clinic_name_kh=database.get_setting("clinic_name_kh", "គ្លីនិកទន្តសាស្រ្ត មើស៊ី"),
         logo_b64=logo_b64,
-        config_json=json.dumps(config_data)
+        config_json=json.dumps(config_data),
+        active_announcements=active_announcements,
+        active_ann_count=active_ann_count
     )
 
 @app.route("/logo.png")

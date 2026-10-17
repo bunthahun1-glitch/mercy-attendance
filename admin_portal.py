@@ -389,8 +389,9 @@ def register_admin_portal(app):
         payroll_summary = database.get_monthly_payroll_summary(payroll_month, payroll_year)
         payroll_records = database.get_payroll_records()
 
-        # Staff requests
+        # Staff requests & Announcements
         staff_requests = database.get_staff_requests("All")
+        announcements = database.get_announcements()
 
         # Staff permissions
         staff_permissions = database.get_staff_permissions()
@@ -456,6 +457,7 @@ def register_admin_portal(app):
             payroll_year=payroll_year,
             payroll_config=payroll_config,
             staff_requests=staff_requests,
+            announcements=announcements,
             staff_permissions=staff_permissions,
             admin_creds=admin_creds,
             staff_username=staff_username,
@@ -1899,6 +1901,50 @@ def register_admin_portal(app):
             database.set_setting(k, str(v))
             return jsonify({"success": True})
         return jsonify({"success": False, "message": "Missing key"}), 400
+
+    # --- ANNOUNCEMENT API ENDPOINTS ---
+    @app.route("/admin/api/announcement/save", methods=["POST"])
+    def admin_api_announcement_save():
+        if not session.get("admin_logged_in"):
+            return jsonify({"success": False, "message": "Unauthorized"}), 401
+        data = request.json or request.form or {}
+        ann_id = data.get("id")
+        title = (data.get("title") or "").strip()
+        content = (data.get("content") or "").strip()
+        priority = data.get("priority", "Normal")
+        target = data.get("target", "All Staff")
+        is_active = 1 if str(data.get("is_active", "1")) in ("1", "true", "True") else 0
+
+        if not title or not content:
+            return jsonify({"success": False, "message": "សូមបញ្ចូលចំណងជើង និងខ្លឹមសារសេចក្តីជូនដំណឹង!"}), 400
+
+        try:
+            if ann_id:
+                database.update_announcement(ann_id, title, content, priority, target, is_active)
+                return jsonify({"success": True, "message": "បានកែប្រែសេចក្តីជូនដំណឹងដោយជោគជ័យ!"})
+            else:
+                new_id = database.add_announcement(title, content, priority, target, is_active=is_active)
+                return jsonify({"success": True, "id": new_id, "message": "បានបង្កើតសេចក្តីជូនដំណឹងថ្មីដោយជោគជ័យ!"})
+        except Exception as e:
+            return jsonify({"success": False, "message": str(e)}), 400
+
+    @app.route("/admin/api/announcement/delete", methods=["POST"])
+    def admin_api_announcement_delete():
+        if not session.get("admin_logged_in"):
+            return jsonify({"success": False, "message": "Unauthorized"}), 401
+        data = request.json or request.form or {}
+        ann_id = data.get("id")
+        if ann_id:
+            try:
+                database.delete_announcement(ann_id)
+                return jsonify({"success": True, "message": "បានលុបសេចក្តីជូនដំណឹងជោគជ័យ!"})
+            except Exception as e:
+                return jsonify({"success": False, "message": str(e)}), 400
+        return jsonify({"success": False, "message": "Missing announcement ID"}), 400
+
+    @app.route("/admin/api/announcements", methods=["GET"])
+    def admin_api_announcements_get():
+        return jsonify({"success": True, "announcements": database.get_announcements()})
 
 # Alias for compatibility
 register_admin_routes = register_admin_portal

@@ -170,6 +170,20 @@ def init_db():
     )
     """)
 
+    # 10. Clinic Announcements
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS announcements (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        priority TEXT DEFAULT 'Normal', -- 'Normal', 'Important', 'Urgent'
+        target TEXT DEFAULT 'All Staff',
+        created_by TEXT DEFAULT 'Admin',
+        created_at TEXT NOT NULL,
+        is_active INTEGER DEFAULT 1
+    )
+    """)
+
     conn.commit()
 
     # Migration: Ensure password column exists on existing databases
@@ -2041,6 +2055,58 @@ def delete_calendar_note(note_id):
     conn = get_connection()
     c = conn.cursor()
     c.execute("DELETE FROM calendar_notes WHERE id = ?", (note_id,))
+    conn.commit()
+    conn.close()
+    return True
+
+
+# ================= ANNOUNCEMENTS / NOTICES =================
+
+def get_announcements(active_only=False):
+    conn = get_connection()
+    c = conn.cursor()
+    query = "SELECT * FROM announcements"
+    params = []
+    if active_only:
+        query += " WHERE is_active = 1"
+    query += " ORDER BY id DESC"
+    c.execute(query, params)
+    rows = c.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+def get_active_announcements():
+    return get_announcements(active_only=True)
+
+def add_announcement(title, content, priority="Normal", target="All Staff", created_by="Admin", is_active=1):
+    conn = get_connection()
+    c = conn.cursor()
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    c.execute("""
+        INSERT INTO announcements (title, content, priority, target, created_by, created_at, is_active)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (title, content, priority, target, created_by, now_str, int(is_active)))
+    ann_id = c.lastrowid
+    conn.commit()
+    conn.close()
+    return ann_id
+
+def update_announcement(ann_id, title, content, priority="Normal", target="All Staff", is_active=1):
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute("""
+        UPDATE announcements
+        SET title = ?, content = ?, priority = ?, target = ?, is_active = ?
+        WHERE id = ?
+    """, (title, content, priority, target, int(is_active), ann_id))
+    conn.commit()
+    conn.close()
+    return True
+
+def delete_announcement(ann_id):
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute("DELETE FROM announcements WHERE id = ?", (ann_id,))
     conn.commit()
     conn.close()
     return True
