@@ -382,24 +382,10 @@ class KioskWidget(QFrame):
         self.leave_num.setText(str(stats["leave_today"]))
 
     def _authenticate_staff(self, emp_id, action_name):
-        import os
-        from components.face_scan_dialog import FaceScanDialog
         from components.staff_auth_dialog import StaffAuthDialog
-
-        # 1. Try Face Scan Dialog first
-        face_dlg = FaceScanDialog(emp_id, action_name=action_name, parent=self)
-        if face_dlg.exec():
-            photo_name = os.path.basename(face_dlg.captured_photo_path or '')
-            return True, f"Kiosk Face Scan (Verified • {photo_name})" if photo_name else "Kiosk Face Scan (Verified)"
-
-        # 2. If user chose password fallback or camera failed
-        if face_dlg.use_password_fallback:
-            pwd_dlg = StaffAuthDialog(emp_id, action_name=action_name, parent=self)
-            if pwd_dlg.exec():
-                return True, "Kiosk PIN/Password Verified"
-            return False, None
-
-        # Cancelled
+        pwd_dlg = StaffAuthDialog(emp_id, action_name=action_name, parent=self)
+        if pwd_dlg.exec():
+            return True, "Kiosk PIN/Password Verified"
         return False, None
 
     def handle_check_in(self):

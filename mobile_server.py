@@ -732,59 +732,42 @@ MOBILE_HTML = """
         </div>
 
         <!-- Staff Password Verification Box (Appears when staff is selected) -->
-        <div id="staffAuthBox" style="display:none; margin-bottom: 8px; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 12px; padding: 10px 12px; animation: fadeIn 0.2s ease;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 5px;">
-                <label for="staffPasswordInput" style="font-size: 11.5px; font-weight: 700; color: #1E293B; display:flex; align-items:center; gap: 4px;">
+        <div id="staffAuthBox" style="display:none; margin-bottom: 12px; background: #F8FAFC; border: 1.5px solid #CBD5E1; border-radius: 14px; padding: 14px 16px; animation: fadeIn 0.2s ease;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                <label for="staffPasswordInput" style="font-size: 12px; font-weight: 700; color: #1E293B; display:flex; align-items:center; gap: 5px;">
                     <span>🔒</span> <span>លេខសម្ងាត់ផ្ទាល់ខ្លួន (Password / PIN) <span style="color:#DC2626;">*</span></span>
                 </label>
                 <span id="authStatusBadge" style="font-size: 11px; font-weight: 700; color: #DC2626; display:none;"></span>
             </div>
-            <div style="display:flex; gap: 6px;">
+            <div style="display:flex; gap: 8px;">
                 <div style="position:relative; flex:1;">
                     <input type="password" id="staffPasswordInput" placeholder="បញ្ចូលលេខសម្ងាត់ផ្ទាល់ខ្លួន..." 
+                           oninput="onPasswordInputChanged()"
                            onkeydown="if(event.key==='Enter'){event.preventDefault(); verifyStaffPassword();}"
-                           style="width: 100%; height: 38px; border-radius: 8px; border: 1.5px solid #CBD5E1; padding: 0 34px 0 10px; font-size: 13px; font-family: inherit; box-sizing: border-box; outline:none; background:#fff;" />
+                           style="width: 100%; height: 42px; border-radius: 10px; border: 1.5px solid #CBD5E1; padding: 0 38px 0 12px; font-size: 14px; font-family: inherit; box-sizing: border-box; outline:none; background:#fff;" />
                     <button type="button" onclick="togglePasswordVisibility()" 
-                            style="position:absolute; right:6px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:15px; color:#64748B; padding:2px;" title="បង្ហាញលេខសម្ងាត់">👁️</button>
+                            style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; font-size:16px; color:#64748B; padding:2px;" title="បង្ហាញលេខសម្ងាត់">👁️</button>
                 </div>
                 <button type="button" id="btnVerifyAuth" onclick="verifyStaffPassword()" 
-                        style="height: 38px; padding: 0 14px; border-radius: 8px; border: none; background: #4338CA; color: white; font-weight: 700; font-size: 12px; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space:nowrap; box-shadow: 0 2px 5px rgba(67,56,202,0.25);">
-                    <span>🔑</span> ផ្ទៀងផ្ទាត់ & ស្កេនមុខ
+                        style="height: 42px; padding: 0 16px; border-radius: 10px; border: none; background: #4338CA; color: white; font-weight: 700; font-size: 13px; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 4px; white-space:nowrap; box-shadow: 0 2px 6px rgba(67,56,202,0.25);">
+                    <span>🔑</span> ផ្ទៀងផ្ទាត់
                 </button>
             </div>
-            <div id="authSuccessMsg" style="display:none; margin-top:5px; font-size:11px; font-weight:700; color:#15803D;">
-                ✅ លេខសម្ងាត់ និងស្កេនមុខត្រឹមត្រូវ!
+            <div id="authSuccessMsg" style="display:none; margin-top:8px; font-size:11.5px; font-weight:700; color:#15803D; background:#DCFCE7; border:1px solid #BBF7D0; padding:6px 10px; border-radius:8px;">
+                ✅ លេខសម្ងាត់ត្រឹមត្រូវ! លោកអ្នកអាចចុចស្កេនចូល ឬស្កេនចេញខាងក្រោមបានហើយ។
             </div>
-            <p style="font-size:10px; color:#64748B; margin-top:4px;">
-                💡 ប្រព័ន្ធតម្រូវឲ្យផ្ទៀងផ្ទាត់ត្រឹមត្រូវទាំង <b>Password</b> និង <b>ស្កេនផ្ទៃមុខផ្ទាល់ខ្លួន</b> ទើបអាចចុចស្កេនបាន
-            </p>
-        </div>
-
-        <!-- Camera Selfie Section -->
-        <div class="camera-card">
-            <div class="camera-video-wrapper" style="position:relative;">
-                <video id="cameraVideo" autoplay playsinline muted></video>
-                <canvas id="cameraCanvas" style="display:none;"></canvas>
-                <!-- Visual Face Guide Oval / Frame -->
-                <div id="faceOverlay" style="position:absolute; inset:8px; border:2.5px dashed rgba(255,255,255,0.7); border-radius:50% / 40%; pointer-events:none; transition:all 0.3s; display:flex; align-items:flex-end; justify-content:center; padding-bottom:6px;">
-                    <span id="faceStatusBadge" style="background:rgba(15,23,42,0.75); color:white; font-size:10px; font-weight:700; padding:3px 8px; border-radius:999px; backdrop-filter:blur(2px); white-space:nowrap;">
-                        👤 តម្រង់មុខក្នុងរង្វង់នេះ
-                    </span>
-                </div>
-            </div>
-            <button type="button" class="camera-btn" id="btnToggleCamera">📸 បើកកាមេរ៉ា Selfie ផ្ទៀងផ្ទាត់មុខ</button>
-            <p style="font-size: 10px; color: var(--text-muted); margin-top: 3px;">
-                ថតរូបមុខពិតប្រាកដ ការពារការស្កេនជំនួសគ្នា
+            <p style="font-size:11px; color:#64748B; margin-top:8px; line-height:1.4;">
+                💡 <b>ការណែនាំ៖</b> ជ្រើសរើសឈ្មោះ ➔ វាយលេខសម្ងាត់ (Password/PIN) ➔ ចុច <b>Check In</b> ឬ <b>Checked Out</b> ជាការស្រេច។
             </p>
         </div>
 
         <!-- Action Buttons -->
         <div class="btn-grid">
             <button class="btn btn-checkin btn-disabled" id="btnCheckIn">
-                <span>🟢</span> Check In
+                <span>🟢</span> Check In (ស្កេនចូល)
             </button>
             <button class="btn btn-checkout btn-disabled" id="btnCheckOut">
-                <span>🔴</span> Checked Out
+                <span>🔴</span> Checked Out (ស្កេនចេញ)
             </button>
             <button class="btn btn-ot btn-disabled" id="btnCheckOutOT">
                 <span>⭐</span> ចេញថែមម៉ោង (OT សម្រាប់តែមានអ្នកជំងឺ)
@@ -1050,43 +1033,6 @@ MOBILE_HTML = """
     // Run Location check
     checkLocation();
 
-    // Camera Selfie Handling
-    let videoStream = null;
-    const video = document.getElementById('cameraVideo');
-    const canvas = document.getElementById('cameraCanvas');
-    const btnToggleCamera = document.getElementById('btnToggleCamera');
-
-    async function startCamera() {
-        try {
-            videoStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'user', width: { ideal: 480 }, height: { ideal: 640 } },
-                audio: false
-            });
-            video.srcObject = videoStream;
-            video.style.display = 'block';
-            canvas.style.display = 'none';
-            btnToggleCamera.innerText = '📸 កាមេរ៉ាកំពុងដំណើរការ...';
-        } catch (e) {
-            console.log('Camera error:', e);
-            btnToggleCamera.innerText = '⚠️ មិនអាចបើកកាមេរ៉ា (អនុញ្ញាត Permission)';
-        }
-    }
-
-    btnToggleCamera.addEventListener('click', startCamera);
-    // Auto-start camera on mobile
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        startCamera();
-    }
-
-    function captureSelfie() {
-        if (!videoStream) return null;
-        canvas.width = video.videoWidth || 480;
-        canvas.height = video.videoHeight || 640;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        return canvas.toDataURL('image/jpeg', 0.65);
-    }
-
     // Staff Authentication & Button State
     let isStaffAuthenticated = false;
 
@@ -1113,6 +1059,19 @@ MOBILE_HTML = """
         }
     }
 
+    // Triggered when typing password
+    function onPasswordInputChanged() {
+        const pwdInput = document.getElementById('staffPasswordInput');
+        const pwd = pwdInput ? pwdInput.value.trim() : '';
+        const authBadge = document.getElementById('authStatusBadge');
+        if (authBadge) authBadge.style.display = 'none';
+        if (pwd.length > 0) {
+            setButtonsEnabled(true);
+        } else {
+            setButtonsEnabled(false);
+        }
+    }
+
     // When staff is selected from dropdown
     document.getElementById('staffSelect').addEventListener('change', function() {
         const val = this.value;
@@ -1120,42 +1079,31 @@ MOBILE_HTML = """
         const pwdInput = document.getElementById('staffPasswordInput');
         const authBadge = document.getElementById('authStatusBadge');
         const authSuccess = document.getElementById('authSuccessMsg');
-        const faceOverlay = document.getElementById('faceOverlay');
-        const faceBadge = document.getElementById('faceStatusBadge');
 
         isStaffAuthenticated = false;
         setButtonsEnabled(false);
 
         if (val) {
             authBox.style.display = 'block';
-            pwdInput.value = '';
-            pwdInput.style.borderColor = '#CBD5E1';
-            authBadge.style.display = 'none';
-            authSuccess.style.display = 'none';
-            if (faceOverlay) {
-                faceOverlay.style.border = '2.5px dashed rgba(255,255,255,0.7)';
-                faceOverlay.style.boxShadow = 'none';
+            if (pwdInput) {
+                pwdInput.value = '';
+                pwdInput.style.borderColor = '#CBD5E1';
             }
-            if (faceBadge) {
-                faceBadge.style.background = 'rgba(15,23,42,0.75)';
-                faceBadge.innerHTML = '👤 តម្រង់មុខក្នុងរង្វង់នេះ';
-            }
-            startCamera();
-            setTimeout(() => pwdInput.focus(), 150);
+            if (authBadge) authBadge.style.display = 'none';
+            if (authSuccess) authSuccess.style.display = 'none';
+            setTimeout(() => { if (pwdInput) pwdInput.focus(); }, 150);
         } else {
             authBox.style.display = 'none';
         }
     });
 
-    // Verify Staff Password / PIN & Biometric Face
+    // Verify Staff Password / PIN
     async function verifyStaffPassword() {
         const staffId = document.getElementById('staffSelect').value;
         const pwdInput = document.getElementById('staffPasswordInput');
         const pwd = pwdInput ? pwdInput.value.trim() : '';
         const authBadge = document.getElementById('authStatusBadge');
         const authSuccess = document.getElementById('authSuccessMsg');
-        const faceOverlay = document.getElementById('faceOverlay');
-        const faceBadge = document.getElementById('faceStatusBadge');
         const btnVerify = document.getElementById('btnVerifyAuth');
 
         if (!staffId) {
@@ -1163,30 +1111,22 @@ MOBILE_HTML = """
             return;
         }
         if (!pwd) {
-            authBadge.innerText = '❌ សូមបញ្ចូលលេខសម្ងាត់!';
-            authBadge.style.display = 'inline';
-            pwdInput.style.borderColor = '#DC2626';
-            pwdInput.focus();
+            if (authBadge) {
+                authBadge.innerText = '❌ សូមបញ្ចូលលេខសម្ងាត់!';
+                authBadge.style.display = 'inline';
+            }
+            if (pwdInput) {
+                pwdInput.style.borderColor = '#DC2626';
+                pwdInput.focus();
+            }
             return;
         }
 
-        // Ensure camera is active and ready
-        if (!videoStream) {
-            await startCamera();
-            await new Promise(r => setTimeout(r, 400));
+        if (btnVerify) {
+            btnVerify.disabled = true;
+            btnVerify.innerHTML = '<span>⏳</span> កំពុងផ្ទៀងផ្ទាត់...';
         }
-
-        const selfieData = captureSelfie();
-        if (!selfieData) {
-            authBadge.innerText = '⚠️ សូមបើកកាមេរ៉ា និងតម្រង់មុខឲ្យចំប្រអប់ស្កេន!';
-            authBadge.style.display = 'inline';
-            showToast('⚠️ សូមបើកកាមេរ៉ា និងតម្រង់មុខឲ្យចំប្រអប់ស្កេន!', false);
-            return;
-        }
-
-        btnVerify.disabled = true;
-        btnVerify.innerHTML = '<span>⏳</span> កំពុងស្កេនមុខ...';
-        authBadge.style.display = 'none';
+        if (authBadge) authBadge.style.display = 'none';
 
         try {
             const resp = await fetch('/api/verify_staff_auth', {
@@ -1194,59 +1134,48 @@ MOBILE_HTML = """
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     emp_id: staffId,
-                    password: pwd,
-                    selfie: selfieData
+                    password: pwd
                 })
             });
             const res = await resp.json();
-            btnVerify.disabled = false;
-            btnVerify.innerHTML = '<span>🔑</span> ផ្ទៀងផ្ទាត់ & ស្កេនមុខ';
+            if (btnVerify) {
+                btnVerify.disabled = false;
+                btnVerify.innerHTML = '<span>🔑</span> ផ្ទៀងផ្ទាត់';
+            }
 
             if (res.success) {
                 isStaffAuthenticated = true;
-                pwdInput.style.borderColor = '#10B981';
-                authSuccess.style.display = 'block';
-                authSuccess.innerHTML = res.message || '✅ លេខសម្ងាត់ និងស្កេនមុខត្រឹមត្រូវ!';
-
-                // Camera face confirmation feedback (Green)
-                if (faceOverlay) {
-                    faceOverlay.style.border = '3px solid #10B981';
-                    faceOverlay.style.boxShadow = '0 0 18px rgba(16, 185, 129, 0.65)';
+                if (pwdInput) pwdInput.style.borderColor = '#10B981';
+                if (authSuccess) {
+                    authSuccess.style.display = 'block';
+                    authSuccess.innerHTML = res.message || '✅ លេខសម្ងាត់ត្រឹមត្រូវ!';
                 }
-                if (faceBadge) {
-                    faceBadge.style.background = '#059669';
-                    faceBadge.innerHTML = '✅ ស្កេនមុខត្រឹមត្រូវ';
-                }
-
                 setButtonsEnabled(true);
-                showToast(res.message || '✅ ផ្ទៀងផ្ទាត់ជោគជ័យ! ឥឡូវលោកអ្នកអាចចុច Check In, Checked Out ឬ ចេញថែមម៉ោងបានហើយ។', true);
+                showToast(res.message || '✅ លេខសម្ងាត់ត្រឹមត្រូវ! លោកអ្នកអាចចុច Check In, Checked Out ឬ ចេញថែមម៉ោងបានហើយ។', true);
             } else {
                 isStaffAuthenticated = false;
                 setButtonsEnabled(false);
-                authSuccess.style.display = 'none';
-                authBadge.innerText = res.message || '❌ ផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ!';
-                authBadge.style.display = 'inline';
-                pwdInput.style.borderColor = '#DC2626';
-
-                // Camera face rejection feedback (Red)
-                if (faceOverlay) {
-                    faceOverlay.style.border = '3px solid #DC2626';
-                    faceOverlay.style.boxShadow = '0 0 18px rgba(220, 38, 38, 0.65)';
+                if (authSuccess) authSuccess.style.display = 'none';
+                if (authBadge) {
+                    authBadge.innerText = res.message || '❌ លេខសម្ងាត់មិនត្រឹមត្រូវ!';
+                    authBadge.style.display = 'inline';
                 }
-                if (faceBadge) {
-                    faceBadge.style.background = '#DC2626';
-                    faceBadge.innerHTML = '❌ ផ្ទៃមុខមិនត្រូវគ្នា';
+                if (pwdInput) {
+                    pwdInput.style.borderColor = '#DC2626';
+                    pwdInput.focus();
+                    pwdInput.select();
                 }
-
-                showToast(res.message || '❌ ផ្ទៀងផ្ទាត់មិនត្រឹមត្រូវ!', false);
-                pwdInput.focus();
-                pwdInput.select();
+                showToast(res.message || '❌ លេខសម្ងាត់មិនត្រឹមត្រូវ!', false);
             }
         } catch (err) {
-            btnVerify.disabled = false;
-            btnVerify.innerHTML = '<span>🔑</span> ផ្ទៀងផ្ទាត់ & ស្កេនមុខ';
-            authBadge.innerText = '❌ បរាជ័យក្នុងការតភ្ជាប់!';
-            authBadge.style.display = 'inline';
+            if (btnVerify) {
+                btnVerify.disabled = false;
+                btnVerify.innerHTML = '<span>🔑</span> ផ្ទៀងផ្ទាត់';
+            }
+            if (authBadge) {
+                authBadge.innerText = '❌ បរាជ័យក្នុងការតភ្ជាប់!';
+                authBadge.style.display = 'inline';
+            }
             showToast('❌ បរាជ័យក្នុងការតភ្ជាប់ទៅកាន់ Server!', false);
         }
     }
@@ -1254,16 +1183,16 @@ MOBILE_HTML = """
     // Submit Attendance Actions
     async function doAttendance(actionType, patientName = '') {
         const staffId = document.getElementById('staffSelect').value;
-        const toast = document.getElementById('toastBox');
+        const pwdInput = document.getElementById('staffPasswordInput');
+        const pwdVal = pwdInput ? pwdInput.value.trim() : '';
 
         if (!staffId) {
             showToast('⚠️ សូមជ្រើសរើសឈ្មោះបុគ្គលិកជាមុនសិន!', false);
             return;
         }
 
-        if (!isStaffAuthenticated) {
-            showToast('🔒 សូមបញ្ចូលលេខសម្ងាត់ផ្ទាល់ខ្លួន និងផ្ទៀងផ្ទាត់ស្កេនមុខជាមុនសិន!', false);
-            const pwdInput = document.getElementById('staffPasswordInput');
+        if (!pwdVal) {
+            showToast('🔒 សូមបញ្ចូលលេខសម្ងាត់ផ្ទាល់ខ្លួន (Password / PIN) ជាមុនសិន!', false);
             if (pwdInput) {
                 pwdInput.focus();
                 pwdInput.style.borderColor = '#DC2626';
@@ -1293,9 +1222,6 @@ MOBILE_HTML = """
             }
         }
 
-        const selfieData = captureSelfie();
-        const pwdVal = document.getElementById('staffPasswordInput') ? document.getElementById('staffPasswordInput').value.trim() : '';
-
         // Send API request
         try {
             const resp = await fetch('/api/mobile_attendance', {
@@ -1309,38 +1235,22 @@ MOBILE_HTML = """
                     patient_name: patientName.trim(),
                     latitude: userLat,
                     longitude: userLng,
-                    distance: distanceMeters,
-                    selfie: selfieData
+                    distance: distanceMeters
                 })
             });
 
             const data = await resp.json();
             if (data.success) {
                 showToast(`✅ ${data.message}`, true);
-                if (videoStream) {
-                    video.style.display = 'none';
-                    canvas.style.display = 'block';
-                }
-                // Reset authentication for next punch
+                // Reset password input for next punch
                 isStaffAuthenticated = false;
                 setButtonsEnabled(false);
-                const pwdInput = document.getElementById('staffPasswordInput');
                 if (pwdInput) {
                     pwdInput.value = '';
                     pwdInput.style.borderColor = '#CBD5E1';
                 }
                 const authSuccess = document.getElementById('authSuccessMsg');
                 if (authSuccess) authSuccess.style.display = 'none';
-                const faceOverlay = document.getElementById('faceOverlay');
-                if (faceOverlay) {
-                    faceOverlay.style.border = '2.5px dashed rgba(255,255,255,0.7)';
-                    faceOverlay.style.boxShadow = 'none';
-                }
-                const faceBadge = document.getElementById('faceStatusBadge');
-                if (faceBadge) {
-                    faceBadge.style.background = 'rgba(15,23,42,0.75)';
-                    faceBadge.innerHTML = '👤 តម្រង់មុខក្នុងរង្វង់នេះ';
-                }
             } else {
                 showToast(`❌ បរាជ័យ៖ ${data.message}`, false);
             }
@@ -1365,14 +1275,16 @@ MOBILE_HTML = """
 
     document.getElementById('btnCheckOutOT').addEventListener('click', () => {
         const staffId = document.getElementById('staffSelect').value;
+        const pwdInput = document.getElementById('staffPasswordInput');
+        const pwdVal = pwdInput ? pwdInput.value.trim() : '';
+
         if (!staffId) {
             showToast('⚠️ សូមជ្រើសរើសឈ្មោះបុគ្គលិកជាមុនសិន!', false);
             return;
         }
 
-        if (!isStaffAuthenticated) {
-            showToast('🔒 សូមបញ្ចូលលេខសម្ងាត់ផ្ទាល់ខ្លួន និងស្កេនមុខបញ្ជាក់ជាមុនសិន!', false);
-            const pwdInput = document.getElementById('staffPasswordInput');
+        if (!pwdVal) {
+            showToast('🔒 សូមបញ្ចូលលេខសម្ងាត់ផ្ទាល់ខ្លួន (Password / PIN) ជាមុនសិន!', false);
             if (pwdInput) {
                 pwdInput.focus();
                 pwdInput.style.borderColor = '#DC2626';
@@ -1592,7 +1504,6 @@ def api_verify_staff_auth():
     data = request.json or {}
     emp_id = data.get("emp_id")
     pwd = str(data.get("password") or "").strip()
-    selfie_b64 = data.get("selfie")
 
     if not emp_id:
         return jsonify({"success": False, "message": "សូមជ្រើសរើសឈ្មោះបុគ្គលិក"}), 400
@@ -1603,7 +1514,7 @@ def api_verify_staff_auth():
     if not emp:
         return jsonify({"success": False, "message": "រកមិនឃើញបុគ្គលិកនេះទេ"}), 404
 
-    # 1. Verify Password / PIN
+    # Verify Password / PIN
     expected_pwd = str(emp.get("password") or "").strip()
     expected_pin = str(emp.get("pin_code") or "").strip()
 
@@ -1621,44 +1532,9 @@ def api_verify_staff_auth():
             "message": "❌ លេខសម្ងាត់ (Password / PIN) មិនត្រឹមត្រូវទេ!"
         }), 401
 
-    # 2. Verify Biometric Face
-    if not selfie_b64:
-        return jsonify({
-            "success": False,
-            "message": "❌ សូមបើកកាមេរ៉ា និងតម្រង់ផ្ទៃមុខក្នុងរង្វង់ស្កេន!"
-        }), 400
-
-    cv_img = face_service.base64_to_cv2(selfie_b64)
-    if cv_img is None:
-        return jsonify({
-            "success": False,
-            "message": "❌ មិនអាចដំណើរការរូបភាពកាមេរ៉ាបានទេ សូមព្យាយាមម្តងទៀត!"
-        }), 400
-
-    face_ok, score, face_msg = face_service.verify_face(emp_id, cv_img)
-    print(f"[FaceAuth] Emp: {emp_id}, Match: {face_ok}, Score: {score:.4f}, Msg: {face_msg}")
-
-    # Save verification snapshot for security audit
-    try:
-        verif_dir = os.path.join(BASE_DIR, "uploads", "verifications")
-        os.makedirs(verif_dir, exist_ok=True)
-        tag = "pass" if face_ok else "fail"
-        v_name = f"{tag}_emp_{emp_id}_{int(score*100)}pct_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
-        cv2.imwrite(os.path.join(verif_dir, v_name), cv_img)
-    except Exception as e:
-        pass
-
-    if not face_ok:
-        return jsonify({
-            "success": False,
-            "message": face_msg,
-            "score": score
-        }), 403
-
     return jsonify({
         "success": True,
-        "message": face_msg,
-        "score": score,
+        "message": "✅ លេខសម្ងាត់ត្រឹមត្រូវ!",
         "staff_name": emp.get("khmer_name") or emp.get("name")
     })
 
@@ -1669,7 +1545,6 @@ def api_mobile_attendance():
     action = data.get("action")
     staff_pwd = str(data.get("password") or "").strip()
     has_overtime = data.get("has_overtime", False)
-    selfie_b64 = data.get("selfie")
     user_lat = data.get("latitude")
     user_lng = data.get("longitude")
     distance = data.get("distance")
@@ -1692,33 +1567,12 @@ def api_mobile_attendance():
                 "message": "❌ លេខសម្ងាត់ផ្ទាល់ខ្លួន (Password / PIN) មិនត្រឹមត្រូវទេ!"
             }), 401
 
-    # 2. Strict Biometric Face Verification
-    if not selfie_b64:
-        return jsonify({
-            "success": False,
-            "message": "❌ មិនមានរូបភាពស្កេនផ្ទៃមុខទេ! សូមតម្រង់មុខលើកាមេរ៉ាដើម្បីស្កេន។"
-        }), 400
-
-    cv_img = face_service.base64_to_cv2(selfie_b64)
-    if cv_img is None:
-        return jsonify({
-            "success": False,
-            "message": "❌ រូបភាពកាមេរ៉ាមិនត្រឹមត្រូវទេ!"
-        }), 400
-
-    face_ok, score, face_msg = face_service.verify_face(emp_id, cv_img)
-    if not face_ok:
-        return jsonify({
-            "success": False,
-            "message": face_msg
-        }), 403
-
     client_ip = get_client_ip()
     wifi_ssid = database.get_setting("wifi_ssid", "Mercy Dental Care")
     wifi_enforce = database.get_setting("wifi_enforce", "0") == "1"
     clinic_ip = database.get_setting("clinic_public_ip", "").strip()
 
-    # 3. Enforce Clinic Wi-Fi IP validation
+    # 2. Enforce Clinic Wi-Fi IP validation
     is_wifi_ok = check_ip_match(client_ip, clinic_ip)
     if wifi_enforce and not is_wifi_ok:
         return jsonify({
@@ -1726,7 +1580,7 @@ def api_mobile_attendance():
             "message": f"❌ មិនអាចស្កេនបានទេ! លោកអ្នកកំពុងប្រើប្រាស់អ៊ីនធឺណិតផ្សេង (IP: {client_ip})។ សូមភ្ជាប់ Wi-Fi របស់គ្លីនិក ({wifi_ssid}) ជាមុនសិន!"
         }), 403
 
-    # 4. Enforce GPS Geofence validation (strictly required if NOT on clinic Wi-Fi)
+    # 3. Enforce GPS Geofence validation (strictly required if NOT on clinic Wi-Fi)
     gps_enforce = database.get_setting("gps_enforce", "0") == "1"
     if gps_enforce and not is_wifi_ok:
         clinic_lat = float(database.get_setting("clinic_lat", "11.5834188") or 11.5834188)
@@ -1746,18 +1600,6 @@ def api_mobile_attendance():
                 "success": False,
                 "message": f"❌ មិនអាចស្កេនបានទេ! លោកអ្នកស្ថិតនៅក្រៅបរិវេណគ្លីនិក (ចម្ងាយ {int(round(calculated_dist))} ម៉ែត្រ > កំណត់ត្រឹម {int(gps_radius)} ម៉ែត្រ)។"
             }), 403
-
-    # Save selfie image to disk
-    selfie_path = None
-    try:
-        import cv2
-        photos_dir = os.path.join(BASE_DIR, "uploads", "selfies")
-        os.makedirs(photos_dir, exist_ok=True)
-        filename = f"selfie_{emp_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
-        selfie_path = os.path.join(photos_dir, filename)
-        cv2.imwrite(selfie_path, cv_img)
-    except Exception as e:
-        print("Failed to save selfie:", e)
 
     check_time = datetime.now().strftime("%H:%M:%S")
     scan_notes = f"Mobile QR Scan (Wi-Fi: {wifi_ssid}, IP: {client_ip})"
