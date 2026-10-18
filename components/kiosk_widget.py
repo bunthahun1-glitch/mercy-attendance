@@ -242,7 +242,7 @@ class KioskWidget(QFrame):
                 background-color: #B45309;
             }
         """)
-        self.btn_check_out_ot.setToolTip("Checked out with Overtime (ចេញថែមម៉ោង • សម្រាប់តែពេលមានអ្នកជំងឺ $1.50/ម៉ោង គិតតាមនាទីជាក់ស្តែងចាប់ពី 10 នាទីឡើង)")
+        self.btn_check_out_ot.setToolTip("Checked out with Overtime (ចេញថែមម៉ោង • សម្រាប់តែពេលមានអ្នកជំងឺ $1.50/ម៉ោង គិតចាប់ពីម៉ោង 18:30 ឡើង)")
         self.btn_check_out_ot.clicked.connect(self.handle_check_out_overtime)
         btn_box.addWidget(self.btn_check_out_ot)
 
@@ -417,19 +417,19 @@ class KioskWidget(QFrame):
             return
 
         from datetime import datetime
-        shift_end = database.get_setting("shift_end", "18:00")
         now_hm = datetime.now().strftime("%H:%M")
-        if now_hm < shift_end[:5]:
+        ot_start_time = "18:30"
+        if now_hm < ot_start_time:
             QMessageBox.warning(
                 self, "មិនទាន់ដល់ម៉ោងថែម",
-                f"⚠️ មិនទាន់ដល់ម៉ោងចេញធ្វើការ ({shift_end}) នៅឡើយទេ! (ម៉ោងបច្ចុប្បន្ន៖ {now_hm})\n\nការថែមម៉ោង (OT) គិតតែចាប់ពីម៉ោង {shift_end} ឡើងទៅប៉ុណ្ណោះ។\n\nប្រសិនបើលោកអ្នកចេញពេលនេះ សូមចុចប៊ូតុង 'Checked Out' ធម្មតា។"
+                f"⚠️ មិនទាន់ដល់ម៉ោងចេញថែមម៉ោង ({ot_start_time}) នៅឡើយទេ! (ម៉ោងបច្ចុប្បន្ន៖ {now_hm})\n\nការថែមម៉ោង (OT) អាចស្កេនបានចាប់ពីម៉ោង {ot_start_time} ឡើងទៅប៉ុណ្ណោះ។\n\nប្រសិនបើលោកអ្នកចេញពេលនេះ សូមចុចប៊ូតុង 'Checked Out' ធម្មតា។"
             )
             return
 
         from PyQt6.QtWidgets import QInputDialog
         p_name, ok = QInputDialog.getText(
             self, "ឈ្មោះអ្នកជំងឺ (Patient Name)",
-            "⭐ ថែមម៉ោង (OT) សម្រាប់តែមានអ្នកជំងឺ៖\n(អត្រា៖ 30 នាទី = $0.75 • 1 ម៉ោង = $1.50)\n\nសូមបញ្ចូលឈ្មោះអ្នកជំងឺ (Patient Name)៖"
+            "⭐ ថែមម៉ោង (OT) សម្រាប់តែមានអ្នកជំងឺ៖\n(អត្រា៖ 30 នាទី = $0.75 • 1 ម៉ោង = $1.50 • ចាប់ពីម៉ោង 18:30 ឡើង)\n\nសូមបញ្ចូលឈ្មោះអ្នកជំងឺ (Patient Name)៖"
         )
         if not ok or not p_name.strip():
             QMessageBox.warning(self, "មិនទាន់ជោគជ័យ", "❌ សូមបញ្ចូលឈ្មោះអ្នកជំងឺជាមុនសិន ទើបអាចស្កេនចេញថែមម៉ោង (OT) បាន!")
@@ -445,12 +445,12 @@ class KioskWidget(QFrame):
             mins = int(round(ot_h * 60))
             QMessageBox.information(
                 self, "ជោគជ័យ (Success)", 
-                f"⭐ ស្កេនចេញថែមម៉ោងជោគជ័យ!\n\n👤 អ្នកជំងឺ៖ {patient_name}\n⏰ ម៉ោងចេញ៖ {t}\n💰 ថែមបាន៖ +{ot_h} ម៉ោង ({mins} នាទី) = +${ot_p:.2f}\n(30 នាទី=$0.75 • 1 ម៉ោង=$1.50)"
+                f"⭐ ស្កេនចេញថែមម៉ោងជោគជ័យ!\n\n👤 អ្នកជំងឺ៖ {patient_name}\n⏰ ម៉ោងចេញ៖ {t}\n💰 ថែមបាន៖ +{ot_h} ម៉ោង ({mins} នាទី) = +${ot_p:.2f}\n(30 នាទី=$0.75 • 1 ម៉ោង=$1.50 • គិតចាប់ពីម៉ោង 18:30)"
             )
         else:
             QMessageBox.information(
                 self, "ស្កេនចេញជោគជ័យ", 
-                f"👋 ស្កេនចេញជោគជ័យ (នៅម៉ោង {t})!\n\n👤 អ្នកជំងឺ៖ {patient_name}\n⚠️ លើសតិចជាង ១៥ នាទី មិនទាន់គ្រប់លក្ខខណ្ឌគិតម៉ោងថែម (OT) ឡើយ។"
+                f"👋 ស្កេនចេញជោគជ័យ (នៅម៉ោង {t})!\n\n👤 អ្នកជំងឺ៖ {patient_name}\n⚠️ មិនទាន់ដល់ម៉ោង 18:30 (តិចជាង ៣០ នាទី) មិនទាន់គ្រប់លក្ខខណ្ឌគិតម៉ោងថែម (OT) ឡើយ។"
             )
         self.refresh_summary()
         self.attendance_updated.emit()

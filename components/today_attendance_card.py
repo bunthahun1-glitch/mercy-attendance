@@ -78,7 +78,7 @@ class TodayAttendanceCard(QFrame):
         today_kh = date.today().strftime("%d-%b-%Y")
         shift_start = database.get_setting("shift_start", "07:30")
         shift_end = database.get_setting("shift_end", "18:00")
-        self.lbl_sub = QLabel(f"កាលបរិច្ឆេទ៖ {today_kh} | ម៉ោងការងារ {shift_start} - {shift_end} | ម៉ោងថែម (OT): សម្រាប់តែពេលមានអ្នកជំងឺ (30 នាទី = $0.75 • 1 ម៉ោង = $1.50 • គិតចាប់ពី 15 នាទីឡើង)")
+        self.lbl_sub = QLabel(f"កាលបរិច្ឆេទ៖ {today_kh} | ម៉ោងការងារ {shift_start} - {shift_end} | ម៉ោងថែម (OT): សម្រាប់តែពេលមានអ្នកជំងឺ (30 នាទី = $0.75 • 1 ម៉ោង = $1.50 • គិតចាប់ពីម៉ោង 18:30 ឡើង)")
         self.lbl_sub.setStyleSheet("font-size: 11px; color: #64748B;")
         title_v.addWidget(self.lbl_sub)
         head_h.addLayout(title_v, stretch=1)
@@ -254,7 +254,7 @@ class TodayAttendanceCard(QFrame):
         today_kh = date.today().strftime("%d-%b-%Y")
         shift_start = database.get_setting("shift_start", "07:30")
         shift_end = database.get_setting("shift_end", "18:00")
-        self.lbl_sub.setText(f"កាលបរិច្ឆេទ៖ {today_kh} | ម៉ោងការងារ {shift_start} - {shift_end} | ម៉ោងថែម (OT): សម្រាប់តែពេលមានអ្នកជំងឺ (30 នាទី = $0.75 • 1 ម៉ោង = $1.50 • គិតចាប់ពី 15 នាទីឡើង)")
+        self.lbl_sub.setText(f"កាលបរិច្ឆេទ៖ {today_kh} | ម៉ោងការងារ {shift_start} - {shift_end} | ម៉ោងថែម (OT): សម្រាប់តែពេលមានអ្នកជំងឺ (30 នាទី = $0.75 • 1 ម៉ោង = $1.50 • គិតចាប់ពីម៉ោង 18:30 ឡើង)")
 
         self.pill_present.setText(f"✅ វត្តមាន: {present}/{expected}")
         self.pill_late.setText(f"⏰ យឺត: {late}")

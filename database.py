@@ -1117,13 +1117,13 @@ def record_check_out(emp_id, check_time=None, has_overtime=False, patient_name=N
     clean_patient = (patient_name or "").strip()
     pat_label = f"អ្នកជំងឺ៖ {clean_patient} • " if clean_patient else ""
 
-    # Overtime calculation: ONLY if checked out after shift end with diff_mins >= 15 AND has_overtime is True
-    if diff_mins >= 15 and has_overtime:
+    # Overtime calculation: ONLY if checked out after shift end with diff_mins >= 30 (>= 18:30) AND has_overtime is True
+    if diff_mins >= 30 and has_overtime:
         ot_mins = diff_mins
         ot_hours = round(diff_mins / 60.0, 2)
         ot_pay = round(diff_mins * rate_per_min, 2)
         status_text = "Overtime"
-        notes_text = f"ថែមម៉ោងអ្នកជំងឺ (Overtime) • {pat_label}+{ot_hours} ម៉ោង ({ot_mins} នាទី) = +${ot_pay:.2f} (30 នាទី=$0.75, 1 ម៉ោង=$1.50 • គិតចាប់ពី 15 នាទីឡើង)"
+        notes_text = f"ថែមម៉ោងអ្នកជំងឺ (Overtime) • {pat_label}+{ot_hours} ម៉ោង ({ot_mins} នាទី) = +${ot_pay:.2f} (30 នាទី=$0.75, 1 ម៉ោង=$1.50 • គិតចាប់ពីម៉ោង 18:30 ឡើង)"
     else:
         is_early = check_time < shift_end_full
         status_text = "Early Out" if is_early else "On Time"
@@ -1134,9 +1134,9 @@ def record_check_out(emp_id, check_time=None, has_overtime=False, patient_name=N
             else:
                 notes_text = f"ចេញមុនម៉ោង (ម៉ោងចេញកំណត់: {shift_end})"
         else:
-            if has_overtime and diff_mins < 15:
+            if has_overtime and diff_mins < 30:
                 pat_sub = f" (អ្នកជំងឺ៖ {clean_patient})" if clean_patient else ""
-                notes_text = f"ចេញធម្មតា{pat_sub} (លើស {diff_mins} នាទី < ១៥ នាទី - មិនទាន់គ្រប់លក្ខខណ្ឌ OT)"
+                notes_text = f"ចេញធម្មតា{pat_sub} (លើស {diff_mins} នាទី < ៣០ នាទី - មិនទាន់ដល់ម៉ោង 18:30 មិនគ្រប់លក្ខខណ្ឌ OT)"
             else:
                 notes_text = "Regular Checked Out (ចេញធម្មតា - គ្មាន OT)"
 

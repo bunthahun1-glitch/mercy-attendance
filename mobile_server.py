@@ -784,7 +784,7 @@ MOBILE_HTML = """
             <div style="font-size:34px; text-align:center; margin-bottom:6px;">🦷⭐</div>
             <h3 style="font-size:17px; font-weight:800; color:#1E293B; text-align:center; margin-bottom:4px;">ចេញថែមម៉ោង (OT អ្នកជំងឺ)</h3>
             <p style="font-size:12px; color:#B45309; text-align:center; font-weight:600; margin-bottom:14px; background:#FEF3C7; padding:8px 12px; border-radius:10px; line-height:1.4;">
-                💰 <b>អត្រាថែមម៉ោង៖</b> 30 នាទី = $0.75 • 1 ម៉ោង = $1.50<br><span style="font-size:11px; color:#D97706;">(គិតចាប់ពីលើស 15 នាទីឡើងទៅ)</span>
+                💰 <b>អត្រាថែមម៉ោង៖</b> 30 នាទី = $0.75 • 1 ម៉ោង = $1.50<br><span style="font-size:11px; color:#D97706;">(គិតចាប់ពីម៉ោង 18:30 ឡើងទៅ)</span>
             </p>
             <div style="margin-bottom:16px;">
                 <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">
@@ -1294,9 +1294,9 @@ MOBILE_HTML = """
 
         const now = new Date();
         const curHM = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
-        const shiftEnd = (config && config.shift_end) ? config.shift_end : '18:00';
-        if (curHM < shiftEnd) {
-            alert(`⚠️ មិនទាន់ដល់ម៉ោងចេញធ្វើការ (${shiftEnd}) នៅឡើយទេ! (ម៉ោងបច្ចុប្បន្ន៖ ${curHM})\n\nការថែមម៉ោង (OT) គិតតែចាប់ពីម៉ោង ${shiftEnd} ឡើងទៅប៉ុណ្ណោះ។\n\nប្រសិនបើលោកអ្នកចេញពេលនេះ សូមចុចប៊ូតុង "Checked Out" ធម្មតា។`);
+        const otStartTime = '18:30';
+        if (curHM < otStartTime) {
+            alert(`⚠️ មិនទាន់ដល់ម៉ោងចេញថែមម៉ោង (${otStartTime}) នៅឡើយទេ! (ម៉ោងបច្ចុប្បន្ន៖ ${curHM})\n\nការថែមម៉ោង (OT) អាចស្កេនបានចាប់ពីម៉ោង ${otStartTime} ឡើងទៅប៉ុណ្ណោះ។\n\nប្រសិនបើលោកអ្នកចេញពេលនេះ សូមចុចប៊ូតុង "Checked Out" ធម្មតា។`);
             return;
         }
 
@@ -1605,8 +1605,15 @@ def api_mobile_attendance():
     scan_notes = f"Mobile QR Scan (Wi-Fi: {wifi_ssid}, IP: {client_ip})"
     patient_name = (data.get("patient_name") or "").strip()
 
-    if action == "checkout_ot" and not patient_name:
-        return jsonify({"success": False, "message": "❌ សូមបញ្ចូលឈ្មោះអ្នកជំងឺជាមុនសិន ទើបអាចស្កេនចេញថែមម៉ោង (OT) បាន!"}), 400
+    if action == "checkout_ot":
+        if not patient_name:
+            return jsonify({"success": False, "message": "❌ សូមបញ្ចូលឈ្មោះអ្នកជំងឺជាមុនសិន ទើបអាចស្កេនចេញថែមម៉ោង (OT) បាន!"}), 400
+        cur_hm = check_time[:5]
+        if cur_hm < "18:30":
+            return jsonify({
+                "success": False,
+                "message": f"⚠️ មិនទាន់ដល់ម៉ោងចេញថែមម៉ោង (18:30) នៅឡើយទេ! (ម៉ោងបច្ចុប្បន្ន៖ {cur_hm})។ ការថែមម៉ោង (OT) អាចស្កេនបានចាប់ពីម៉ោង 18:30 ឡើងទៅប៉ុណ្ណោះ។ សូមចុច 'Checked Out' ធម្មតា។"
+            }), 400
 
     if action == "checkin":
         status, t = database.record_check_in(emp_id, check_time, notes=scan_notes)
@@ -1618,11 +1625,7 @@ def api_mobile_attendance():
                 mins = int(round(ot_h * 60))
                 msg = f"ចេញថែមម៉ោងជោគជ័យ (Checked out with Overtime): {emp_name} • អ្នកជំងឺ៖ {patient_name} នៅម៉ោង {t} • ថែម +{ot_h} ម៉ោង ({mins} នាទី) = +${ot_p:.2f} (30 នាទី=$0.75, 1 ម៉ោង=$1.50)!"
             else:
-                shift_end = database.get_setting("shift_end", "18:00")
-                if check_time < (shift_end + ":00" if len(shift_end) == 5 else shift_end):
-                    msg = f"ស្កេនចេញជោគជ័យ (Early Out): {emp_name} នៅម៉ោង {t} (ចេញមុនម៉ោង {shift_end} • មិនគិត OT ឡើយ)!"
-                else:
-                    msg = f"ស្កេនចេញជោគជ័យ: {emp_name} នៅម៉ោង {t} (លើសតិចជាង ១៥ នាទី • មិនទាន់គ្រប់លក្ខខណ្ឌ OT ទេ)!"
+                msg = f"ស្កេនចេញជោគជ័យ: {emp_name} នៅម៉ោង {t} (មិនទាន់ដល់ម៉ោង 18:30 • មិនទាន់គ្រប់លក្ខខណ្ឌ OT ទេ)!"
         else:
             msg = f"ស្កេនចេញជោគជ័យ (Checked Out): {emp_name} នៅម៉ោង {t}!"
     else:
