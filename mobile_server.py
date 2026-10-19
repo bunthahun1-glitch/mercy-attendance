@@ -5,8 +5,30 @@ import threading
 import json
 import base64
 import math
-from datetime import datetime, date
+import time
+from datetime import datetime, date, timedelta, timezone
 from flask import Flask, request, jsonify, render_template_string
+
+try:
+    from zoneinfo import ZoneInfo
+    PHNOM_PENH_TZ = ZoneInfo("Asia/Phnom_Penh")
+except Exception:
+    PHNOM_PENH_TZ = timezone(timedelta(hours=7))
+
+os.environ["TZ"] = "Asia/Phnom_Penh"
+if hasattr(time, "tzset"):
+    try:
+        time.tzset()
+    except Exception:
+        pass
+
+def get_cambodia_now():
+    """Returns current datetime in Cambodia (Asia/Phnom_Penh, UTC+7)."""
+    return datetime.now(PHNOM_PENH_TZ).replace(tzinfo=None)
+
+def get_cambodia_today():
+    """Returns today's date in Cambodia (Asia/Phnom_Penh, UTC+7)."""
+    return get_cambodia_now().date()
 
 # Ensure workspace root is in sys.path
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -61,7 +83,18 @@ def check_ip_match(client_ip, clinic_ip_setting):
     if client_ip in ("127.0.0.1", "::1", "localhost") or client_ip.startswith("192.168.") or client_ip.startswith("10.") or client_ip.startswith("172.16."):
         return True
     allowed_ips = [ip.strip() for ip in clinic_ip_setting.replace(";", ",").split(",") if ip.strip()]
-    return client_ip in allowed_ips
+    for ip in allowed_ips:
+        if ip == client_ip:
+            return True
+        if "*" in ip and client_ip.startswith(ip.split("*")[0]):
+            return True
+        # Check dynamic ISP subnet /16 (e.g. 119.13.x.x)
+        if ip.count(".") == 3 and client_ip.count(".") == 3:
+            ip_parts = ip.split(".")
+            c_parts = client_ip.split(".")
+            if ip_parts[0] == c_parts[0] and ip_parts[1] == c_parts[1]:
+                return True
+    return False
 
 # Mobile Web HTML Template
 MOBILE_HTML = """
@@ -1601,7 +1634,7 @@ def api_mobile_attendance():
                 "message": f"❌ មិនអាចស្កេនបានទេ! លោកអ្នកស្ថិតនៅក្រៅបរិវេណគ្លីនិក (ចម្ងាយ {int(round(calculated_dist))} ម៉ែត្រ > កំណត់ត្រឹម {int(gps_radius)} ម៉ែត្រ)។"
             }), 403
 
-    check_time = datetime.now().strftime("%H:%M:%S")
+    check_time = get_cambodia_now().strftime("%H:%M:%S")
     scan_notes = f"Mobile QR Scan (Wi-Fi: {wifi_ssid}, IP: {client_ip})"
     patient_name = (data.get("patient_name") or "").strip()
 
