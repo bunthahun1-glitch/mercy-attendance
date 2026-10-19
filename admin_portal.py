@@ -251,9 +251,10 @@ def register_admin_portal(app):
         if not session.get("admin_logged_in"):
             return redirect("/admin/login")
 
-        today_date = date.today().isoformat()
-        current_year = date.today().year
-        current_month_num = date.today().month
+        today_dt = database.get_cambodia_today()
+        today_date = today_dt.isoformat()
+        current_year = today_dt.year
+        current_month_num = today_dt.month
         current_month = f"{current_year}-{current_month_num:02d}"
 
         # Determine filter period (monthly by default, or daily)
