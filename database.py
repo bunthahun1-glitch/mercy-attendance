@@ -6,7 +6,29 @@ Handles SQLite operations, schemas, and demo seed data.
 import sqlite3
 import os
 import json
-from datetime import datetime, date, timedelta
+import time
+from datetime import datetime, date, timedelta, timezone
+
+try:
+    from zoneinfo import ZoneInfo
+    PHNOM_PENH_TZ = ZoneInfo("Asia/Phnom_Penh")
+except Exception:
+    PHNOM_PENH_TZ = timezone(timedelta(hours=7))
+
+os.environ["TZ"] = "Asia/Phnom_Penh"
+if hasattr(time, "tzset"):
+    try:
+        time.tzset()
+    except Exception:
+        pass
+
+def get_cambodia_now():
+    """Returns current datetime in Cambodia (Asia/Phnom_Penh, UTC+7)."""
+    return datetime.now(PHNOM_PENH_TZ).replace(tzinfo=None)
+
+def get_cambodia_today():
+    """Returns today's date in Cambodia (Asia/Phnom_Penh, UTC+7)."""
+    return get_cambodia_now().date()
 
 DB_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mercy_dental.db")
 
@@ -906,7 +928,7 @@ def get_today_dashboard_attendance_and_leave():
     """Returns today's live attendance, check-in, check-out, overtime, and leave details."""
     conn = get_connection()
     c = conn.cursor()
-    today_dt = date.today()
+    today_dt = get_cambodia_today()
     today_str = today_dt.strftime("%Y-%m-%d")
     is_saturday = today_dt.weekday() == 5  # 5 is Saturday
 
@@ -1029,9 +1051,9 @@ def get_today_dashboard_attendance_and_leave():
 def record_check_in(emp_id, check_time=None, notes=None):
     conn = get_connection()
     c = conn.cursor()
-    today_str = date.today().strftime("%Y-%m-%d")
+    today_str = get_cambodia_today().strftime("%Y-%m-%d")
     if not check_time:
-        check_time = datetime.now().strftime("%H:%M:%S")
+        check_time = get_cambodia_now().strftime("%H:%M:%S")
 
     # Determine status based on shift_start setting (default 07:30) + grace period
     shift_start = get_setting("shift_start", "07:30")
@@ -1066,9 +1088,9 @@ def record_check_in(emp_id, check_time=None, notes=None):
 def record_check_out(emp_id, check_time=None, has_overtime=False, patient_name=None, notes=None):
     conn = get_connection()
     c = conn.cursor()
-    today_str = date.today().strftime("%Y-%m-%d")
+    today_str = get_cambodia_today().strftime("%Y-%m-%d")
     if not check_time:
-        check_time = datetime.now().strftime("%H:%M:%S")
+        check_time = get_cambodia_now().strftime("%H:%M:%S")
 
     # Shift end from settings (default 18:00)
     shift_end = get_setting("shift_end", "18:00")
